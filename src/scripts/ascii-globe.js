@@ -1,6 +1,6 @@
 /**
- * ASCII globe: an orthographic globe drawn as a grid of characters on a <canvas>,
- * after the SYMAP-style line-printer maps.
+ * ASCII globe: an orthographic globe drawn as a dense grid of characters on a <canvas>,
+ * after the SYMAP line-printer maps (+ x Θ # … as tones of one ink).
  *
  *   – each continent has its own character, so the five read apart without colour
  *   – Taiwan is drawn in --globe-home (purple); the selected conference's whole country
@@ -24,18 +24,32 @@
  */
 
 const RAD = Math.PI / 180;
-const COLS = 132;                         // characters across the frame
-const RADIUS = 0.43;                      // globe radius as a share of the frame width: the globe spans the frame, which crops top and bottom
+const COLS = 150;                         // grid cells across the frame: the spacing between characters
+const GLYPH_COLS = 200;                   // glyph size as if the frame held this many: smaller than the cell, so the grid reads airy
+const MARK_COLS = 132;                    // city marks and the ring keep this coarser size so they stay legible
+const RADIUS = 0.6;                       // globe radius as a share of the frame width: the globe spans the frame, which crops top and bottom
 const TAIWAN = 158;                       // ISO 3166 numeric
 const W = 720, H = 360;
 
-// the five continents (and Antarctica), one character each
+// 5 × 5 pixel patterns for the characters the globe prints
+const GLYPHS = {
+  '+': ['..#..', '..#..', '#####', '..#..', '..#..'],
+  'x': ['#...#', '.#.#.', '..#..', '.#.#.', '#...#'],
+  'Θ': ['.###.', '#...#', '#####', '#...#', '.###.'],
+  '#': ['.#.#.', '#####', '.#.#.', '#####', '.#.#.'],
+  '*': ['..#..', '#.#.#', '.###.', '#.#.#', '..#..'],
+  '-': ['.....', '.....', '.###.', '.....', '.....'],
+  '@': ['.###.', '#####', '#####', '#####', '.###.'],   // Taiwan: a solid disc
+  '·': ['.....', '.....', '..#..', '.....', '.....'],
+};
+
+// the five continents (and Antarctica), one line-printer character each
 export const CONTINENTS = [
-  { id: 'asia', ch: '+' },
-  { id: 'europe', ch: 'x' },
-  { id: 'africa', ch: '=' },
-  { id: 'americas', ch: 'o' },
-  { id: 'oceania', ch: '*' },
+  { id: 'asia',       ch: '+' },
+  { id: 'europe',     ch: 'x' },
+  { id: 'africa',     ch: 'Θ' },
+  { id: 'americas',   ch: '#' },
+  { id: 'oceania',    ch: '*' },
   { id: 'antarctica', ch: '-' },
 ];
 
@@ -95,26 +109,50 @@ export async function createGlobe(canvas, { landUrl, countriesUrl, center = [24.
   let w = 0, h = 0, view = unit(center), active = null, pickCode = 0, arcT = 1, anim = 0, busy = false;
   const radius = () => Math.max(w * RADIUS, h * 0.6);
 
+  // Each glyph is a 5 × 5 pixel pattern, like a line-printer character, rasterised once into a
+  // sprite of whole device pixels and stamped on whole device pixels. (A 7 px font glyph is mostly
+  // antialiasing, and fillText at fractional positions blurs every copy differently.)
+  const sprites = new Map();
+  function sprite(ch, color, fd, S) {
+    const key = ch + '|' + color + '|' + fd + '|' + S;
+    let sp = sprites.get(key);
+    if (sp) return sp;
+    sp = document.createElement('canvas');
+    sp.width = sp.height = S;
+    const g = sp.getContext('2d');
+    g.fillStyle = color;
+    const rowsOf = GLYPHS[ch] || GLYPHS['·'];
+    const u = Math.max(1, Math.round(fd / 7));                       // device pixels per pattern pixel
+    const o = Math.floor((S - 5 * u) / 2);
+    rowsOf.forEach((row, y) => { for (let x = 0; x < 5; x++) if (row[x] === '#') g.fillRect(o + x * u, o + y * u, u, u); });
+    sprites.set(key, sp);
+    return sp;
+  }
+
   function draw() {
     if (!w) return;
     const dpr = window.devicePixelRatio || 1;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, w, h);
-    const cell = w / COLS, rows = Math.ceil(h / cell), R = radius(), cx = w / 2, cy = h / 2;
+    const DW = canvas.width, DH = canvas.height;
+    const cd = Math.max(3, Math.round((w / COLS) * dpr));                 // cell, in whole device pixels
+    const fd = Math.max(5, Math.round((w / GLYPH_COLS) * 1.18 * dpr));    // glyph size, in whole device pixels
+    const S = cd + 2 * Math.ceil(Math.max(0, fd + 2 - cd) / 2);           // sprite box: fits the glyph, same parity as the cell
+    const pad = (S - cd) / 2;
+    const cols = Math.ceil(DW / cd), rows = Math.ceil(DH / cd);
+    const ox = Math.floor((DW - cols * cd) / 2), oy = Math.floor((DH - rows * cd) / 2);   // grid centred, on whole pixels
+    const cell = cd / dpr, mark = w / MARK_COLS, R = radius(), cx = w / 2, cy = h / 2;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, DW, DH);
+    ctx.imageSmoothingEnabled = false;
     const [clat, clon] = toLatLon(view);
     const sp = Math.sin(clat * RAD), cp = Math.cos(clat * RAD), l0 = clon * RAD;
     const css = getComputedStyle(canvas);
     const ink = css.color;
     const homeC = css.getPropertyValue('--globe-home').trim() || '#9b5cff';
     const pickC = css.getPropertyValue('--globe-pick').trim() || '#ff4b4b';
-    ctx.font = `${(cell * 1.18).toFixed(2)}px "JetBrains Mono", ui-monospace, monospace`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
     for (let r = 0; r < rows; r++) {
-      const py = (r + 0.5) * cell, v = (cy - py) / R;
-      for (let c = 0; c < COLS; c++) {
-        const px = (c + 0.5) * cell, u = (px - cx) / R, d2 = u * u + v * v;
+      const py = (oy + (r + 0.5) * cd) / dpr, v = (cy - py) / R, sy = oy + r * cd - pad;
+      for (let c = 0; c < cols; c++) {
+        const px = (ox + (c + 0.5) * cd) / dpr, u = (px - cx) / R, d2 = u * u + v * v;
         if (d2 > 1) continue;
         const z = Math.sqrt(1 - d2);
         const lat = Math.asin(z * sp + v * cp) / RAD;
@@ -122,19 +160,21 @@ export async function createGlobe(canvas, { landUrl, countriesUrl, center = [24.
         const depth = Math.min(1, z * 1.8);                          // fade towards the limb
         if (isLand(lat, lon)) {
           const code = countryAt(lat, lon);
-          let fill = ink, ch = CONTINENTS[continent(lat, lon)].ch, a = 0.35 + 0.65 * depth;
-          if (code === TAIWAN) { fill = homeC; ch = '#'; a = 1; }
-          else if (pickCode && code === pickCode) { fill = pickC; a = 0.55 + 0.45 * depth; }
-          ctx.fillStyle = fill;
+          let ch = CONTINENTS[continent(lat, lon)].ch;
+          let fill = ink, a = 0.4 + 0.6 * depth;
+          if (code === TAIWAN) { fill = homeC; ch = '@'; a = 1; }
+          else if (pickCode && code === pickCode) { fill = pickC; a = 0.6 + 0.4 * depth; }
           ctx.globalAlpha = a;
-          ctx.fillText(ch, px, py);
+          ctx.drawImage(sprite(ch, fill, fd, S), ox + c * cd - pad, sy);
         } else if ((r + c) % 2 === 0) {
-          ctx.fillStyle = ink;
           ctx.globalAlpha = 0.13 * (0.3 + 0.7 * depth);              // ocean: sparse dots, enough to read the sphere
-          ctx.fillText('·', px, py);
+          ctx.drawImage(sprite('·', ink, fd, S), ox + c * cd - pad, sy);
         }
       }
     }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
 
     const projectRaw = (ll, min = 0) => {
       const p = ll[0] * RAD, d = ll[1] * RAD - l0;
@@ -144,7 +184,9 @@ export async function createGlobe(canvas, { landUrl, countriesUrl, center = [24.
     };
     const project = (ll) => {                                         // snapped to the character grid
       const q = projectRaw(ll, 0.05);
-      return q && { x: (Math.floor(q.x / cell) + 0.5) * cell, y: (Math.floor(q.y / cell) + 0.5) * cell };
+      if (!q) return null;
+      const snap = (v, o) => (o + (Math.floor((v * dpr - o) / cd) + 0.5) * cd) / dpr;
+      return { x: snap(q.x, ox), y: snap(q.y, oy) };
     };
 
     // thin white arc along the sphere, grown from Taiwan towards the selected place (front side only)
@@ -164,13 +206,14 @@ export async function createGlobe(canvas, { landUrl, countriesUrl, center = [24.
     }
 
     // □ every conference city in view
+    ctx.font = `${(mark * 1.18).toFixed(2)}px "JetBrains Mono", ui-monospace, monospace`;
     ctx.fillStyle = ink;
     ctx.globalAlpha = 0.85;
     ctx.lineWidth = 1;
     for (const ll of cities) {
       const q = project(ll);
       if (!q) continue;
-      ctx.clearRect(q.x - cell / 2, q.y - cell / 2, cell, cell);
+      ctx.clearRect(q.x - mark / 2, q.y - mark / 2, mark, mark);
       ctx.fillText('□', q.x, q.y);
     }
     // ■ in a ring for the selected one, once the arc has reached it
@@ -179,10 +222,10 @@ export async function createGlobe(canvas, { landUrl, countriesUrl, center = [24.
       ctx.globalAlpha = 1;
       ctx.fillStyle = pickC;
       ctx.strokeStyle = pickC;
-      ctx.clearRect(q.x - cell, q.y - cell, cell * 2, cell * 2);
+      ctx.clearRect(q.x - mark, q.y - mark, mark * 2, mark * 2);
       ctx.fillText('■', q.x, q.y);
       ctx.beginPath();
-      ctx.arc(q.x, q.y, cell * 2.2, 0, Math.PI * 2);
+      ctx.arc(q.x, q.y, mark * 2.2, 0, Math.PI * 2);
       ctx.stroke();
     }
     ctx.globalAlpha = 1;
@@ -200,7 +243,7 @@ export async function createGlobe(canvas, { landUrl, countriesUrl, center = [24.
   }
   new ResizeObserver(resize).observe(canvas);
   resize();
-  document.fonts?.ready.then(draw);
+  document.fonts?.ready.then(draw);   // city marks use the web font
 
   /** One timeline: the globe turns to `to` while the arc grows; done when both are. */
   function run(to, { turnMs, arcMs = 0 }) {

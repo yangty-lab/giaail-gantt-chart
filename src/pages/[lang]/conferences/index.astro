@@ -17,6 +17,7 @@ import Base from '../../../layouts/Base.astro';
 import PageHeader from '../../../components/PageHeader.astro';
 import { useTranslations, pick, langPaths, type Lang } from '../../../i18n/utils';
 import '../../../styles/conferences.css';
+import { CONTINENTS } from '../../../scripts/ascii-globe.js';
 
 export const getStaticPaths = langPaths;
 const lang = Astro.params.lang as Lang;
@@ -121,8 +122,8 @@ const checked = zh ? CHECKED.replaceAll('-', '/') : new Intl.DateTimeFormat('en-
 const landUrl = `${import.meta.env.BASE_URL}data/land.bin`;
 const countriesUrl = `${import.meta.env.BASE_URL}data/countries.bin`;
 const client = { editions, cities, home: HOME, landUrl, countriesUrl };
-const continents = ['asia', 'europe', 'africa', 'americas', 'oceania'] as const;
-const continentCh = { asia: '+', europe: 'x', africa: '=', americas: 'o', oceania: '*' };   // = CONTINENTS in ascii-globe.js
+// legend: the globe's own characters (Antarctica left out)
+const continents = CONTINENTS.filter((c) => c.id !== 'antarctica');
 ---
 
 <Base lang={lang} title={t('conf.title')} description={t('conf.lede')}>
@@ -198,12 +199,12 @@ const continentCh = { asia: '+', europe: 'x', africa: '=', americas: 'o', oceani
           </dl>
         </div>
         <span class="globe-coord" data-coord></span>
-        <ul class="globe-key" aria-label={t('conf.key')}>
-          {continents.map((c) => <li><b>{continentCh[c]}</b>{t(`conf.cont.${c}` as any)}</li>)}
-          <li><b class="home">#</b>{t('conf.taiwan')}</li>
-          <li><b class="pick">■</b>{t('conf.picked')}</li>
-        </ul>
       </div>
+      <ul class="globe-key" aria-label={t('conf.key')}>
+        {continents.map((c) => <li><b>{c.ch}</b>{t(`conf.cont.${c.id}` as any)}</li>)}
+        <li><b class="home">●</b>{t('conf.taiwan')}</li>
+        <li><b class="pick">■</b>{t('conf.picked')}</li>
+      </ul>
     </section>
 
     <!-- 3 · Notes ------------------------------------------------------------ -->

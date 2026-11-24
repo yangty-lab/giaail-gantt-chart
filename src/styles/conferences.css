@@ -74,11 +74,11 @@
 .key-dash { display: inline-block; width: 14px; border-top: 1px dashed var(--ink-2); margin-left: -2px; }
 
 /* 2 · Globe ------------------------------------------------------------------ */
-.map { height: var(--stage); margin-bottom: var(--sp-80); }
-.globe-frame { position: relative; height: 100%; overflow: hidden; border: var(--rule-w) solid var(--rule); }   /* the wide mask */
+.map { height: var(--stage); margin-bottom: var(--sp-80); display: flex; flex-direction: column; }
+.globe-frame { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; border: var(--rule-w) solid var(--rule); }   /* the wide mask */
 .globe { display: block; width: 100%; height: 100%; color: var(--fg); touch-action: pan-y; user-select: none; }   /* drag sideways to turn; vertical swipes still scroll */
 .globe-coord { position: absolute; left: var(--sp-12); bottom: var(--sp-10); font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--fg-2); background: var(--bg); padding: 0 var(--sp-4); }
-.globe-key { position: absolute; right: var(--sp-12); bottom: var(--sp-10); list-style: none; margin: 0; padding: var(--sp-4) var(--sp-8); display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--sp-2) var(--sp-14); max-width: calc(100% - 200px); background: var(--bg); font-size: var(--fs-micro); color: var(--fg-2); }
+.globe-key { list-style: none; margin: var(--sp-10) 0 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: var(--sp-6) var(--sp-18); font-size: var(--fs-micro); color: var(--fg-2); }   /* below the frame, like the Gantt key */
 .globe-key li { display: inline-flex; align-items: center; gap: var(--sp-6); }
 .globe-key b { font-family: var(--mono); font-weight: var(--fw-regular); color: var(--fg); }
 .globe-key b.home { color: var(--globe-home); }
@@ -126,13 +126,12 @@
 
 /* small screens ---------------------------------------------------------------- */
 @media (max-width: 880px) {
-  .globe-key { left: var(--sp-12); right: var(--sp-12); bottom: auto; top: var(--sp-10); max-width: none; justify-content: flex-start; }
 }
 @media (max-width: 640px) {
   .conf { --lab: 104px; --stage: clamp(360px, 60vh, 480px); }
   .g-name { font-size: var(--fs-micro); }
   .sched li { grid-template-columns: 1fr; gap: 0; }
-  .g-key { justify-content: flex-start; }
+  .g-key, .globe-key { justify-content: flex-start; }
   .map { height: auto; }
   .globe-frame { height: auto; aspect-ratio: 4 / 3; }
   .callout { width: 250px; }

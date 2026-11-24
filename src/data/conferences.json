@@ -351,6 +351,43 @@
     ]
   },
   {
+    "id": "aiape",
+    "name": "AI|APE",
+    "full": "Artificial Intelligence in Architecture, Planning, and Environment",
+    "full_zh": "建築、規劃與環境中的人工智慧國際研討會",
+    "tier": "recommended",
+    "field": "caad",
+    "labPapers": 0,
+    "site": "https://conf.dap.tuwien.ac.at/aiape/2027/",
+    "indexing": "CumInCAD",
+    "format": "Two stages, both double-blind: a 300–500-word extended abstract, then the paper. Full papers 6, 8 or 10 pages; short papers (posters, work in progress, PhD, workshop descriptions) 2 or 4 pages. Submitted through OpenConf.",
+    "format_zh": "兩階段、皆雙盲：先交 300–500 字延伸摘要，再交論文。全文 6、8 或 10 頁；短文（海報、進行中研究、博士生研究、工作坊說明）2 或 4 頁。OpenConf 投稿。",
+    "note": "New conference at TU Wien, from the group behind DLA 2024 and SIMAUD 2020. Hybrid, two days. Tracks: territory, region and landscape; cities; architectures; education; posters, demos and PhD work; workshops and tutorials. Dates are provisional until the venue is confirmed.",
+    "note_zh": "維也納工業大學新辦的研討會，主辦團隊辦過 DLA 2024 與 SIMAUD 2020。實體＋線上，共兩天。分組：國土、區域與地景；城市；建築；教育；海報、展示與博士生研究；工作坊與教學。場地確認前日期仍可能變動。",
+    "editions": [
+      {
+        "year": 2027,
+        "geo": [48.199, 16.364],
+        "city": "Vienna",
+        "city_zh": "維也納",
+        "country": "Austria",
+        "country_zh": "奧地利",
+        "host": "TUtheSky, TU Wien",
+        "host_zh": "維也納工業大學 TUtheSky",
+        "url": "https://conf.dap.tuwien.ac.at/aiape/2027/cfp.html",
+        "conference": { "start": "2027-05-20", "end": "2027-05-21" },
+        "milestones": [
+          { "type": "abstract", "date": "2026-12-01", "label": "Extended abstract (blinded)", "label_zh": "延伸摘要（匿名）" },
+          { "type": "result", "date": "2026-12-29", "label": "Abstract acceptance", "label_zh": "摘要結果" },
+          { "type": "paper", "date": "2027-01-29", "label": "Paper (blinded)", "label_zh": "論文（匿名）" },
+          { "type": "result", "date": "2027-03-19" },
+          { "type": "earlybird", "date": "2027-04-01" },
+          { "type": "camera", "date": "2027-04-16" }
+        ]
+      }
+    ]
+  },
+  {
     "id": "hcii",
     "name": "HCII",
     "full": "HCI International",
