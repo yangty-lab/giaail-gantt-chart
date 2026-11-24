@@ -1,0 +1,486 @@
+[
+  {
+    "id": "caadria",
+    "name": "CAADRIA",
+    "full": "Computer-Aided Architectural Design Research in Asia",
+    "full_zh": "亞洲電腦輔助建築設計研究協會國際研討會",
+    "tier": "core",
+    "field": "caad",
+    "labPapers": 23,
+    "site": "https://caadria.org/",
+    "indexing": "CumInCAD",
+    "format": "Two stages: abstract, then full paper. Double-blind review.",
+    "format_zh": "兩階段：先交摘要，通過後交全文；雙盲審查。",
+    "note": "The lab's main venue, submitted to almost every year. NYCU hosted CAADRIA 2026.",
+    "note_zh": "研究室主力會議，幾乎每年投稿；2026 年由本校主辦。",
+    "editions": [
+      {
+        "year": 2027,
+        "geo": [31.27, 120.74],
+        "theme": "Adaptive Horizons: Designing for Uncertainty and Transformation",
+        "city": "Suzhou",
+        "city_zh": "蘇州",
+        "country": "China",
+        "country_zh": "中國",
+        "host": "Xi'an Jiaotong-Liverpool University",
+        "host_zh": "西交利物浦大學",
+        "url": "https://www.caadria2027.org/",
+        "conference": { "start": "2027-03-31", "end": "2027-04-02" },
+        "milestones": [
+          { "type": "abstract", "date": "2026-07-27", "unverified": true, "note": "From a third-party listing; the official site does not show it.", "note_zh": "來自第三方彙整網站，官網未列出。" },
+          { "type": "result", "date": "2026-09-07", "label": "Abstract results", "label_zh": "摘要結果" },
+          { "type": "paper", "date": "2026-11-02" },
+          { "type": "camera", "date": "2027-01-11" }
+        ]
+      },
+      {
+        "year": 2028,
+        "est": true,
+        "city": "TBA",
+        "city_zh": "未公布",
+        "conference": { "start": "2028-04-01", "end": "2028-04-03" },
+        "milestones": [
+          { "type": "abstract", "date": "2027-07-26", "est": true },
+          { "type": "result", "date": "2027-09-06", "est": true, "label": "Abstract results", "label_zh": "摘要結果" },
+          { "type": "paper", "date": "2027-11-01", "est": true },
+          { "type": "camera", "date": "2028-01-10", "est": true }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ecaade",
+    "name": "eCAADe",
+    "full": "Education and Research in Computer Aided Architectural Design in Europe",
+    "full_zh": "歐洲電腦輔助建築設計教育與研究協會國際研討會",
+    "tier": "core",
+    "field": "caad",
+    "labPapers": 6,
+    "site": "https://ecaade.org/",
+    "indexing": "CumInCAD",
+    "format": "Two stages: 300-word abstract, then full paper.",
+    "format_zh": "兩階段：先交 300 字摘要，再交全文。",
+    "note": "The European sister conference of CAADRIA; held in late August or September.",
+    "note_zh": "CAADRIA 的歐洲姊妹會，每年 8–9 月舉辦。",
+    "editions": [
+      {
+        "year": 2027,
+        "geo": [60.186, 24.828],
+        "theme": "Symbiotic Ecologies: Designing Across Species, Data, and Time",
+        "city": "Espoo",
+        "city_zh": "艾斯堡",
+        "country": "Finland",
+        "country_zh": "芬蘭",
+        "host": "Aalto University",
+        "host_zh": "阿爾托大學",
+        "url": "https://www.aalto.fi/en/events/ecaade2027-conference-symbiotic-ecologies-designing-across-species-data-and-time",
+        "workshops": { "start": "2027-08-23", "end": "2027-08-24" },
+        "conference": { "start": "2027-08-25", "end": "2027-08-27" },
+        "milestones": [
+          { "type": "abstract", "date": "2027-01-15" },
+          { "type": "result", "date": "2027-02-15", "label": "Abstract feedback", "label_zh": "摘要回饋" },
+          { "type": "paper", "date": "2027-04-01" },
+          { "type": "result", "date": "2027-05-15" },
+          { "type": "camera", "date": "2027-06-15" },
+          { "type": "earlybird", "date": "2027-06-15" }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "siggraph-asia",
+    "name": "SIGGRAPH Asia",
+    "full": "ACM SIGGRAPH Conference and Exhibition on Computer Graphics and Interactive Techniques in Asia",
+    "full_zh": "ACM SIGGRAPH 亞洲電腦圖學與互動技術研討會",
+    "tier": "core",
+    "field": "graphics",
+    "labPapers": 2,
+    "site": "https://asia.siggraph.org/",
+    "indexing": "ACM Digital Library",
+    "format": "Several tracks with separate deadlines: technical papers, technical communications, posters, art papers.",
+    "format_zh": "多個投稿類別各有截止日：技術論文、技術短文、海報、藝術論文。",
+    "note": "Technical communications and posters close in late July, about two months after technical papers.",
+    "note_zh": "技術短文與海報約在 7 月底截止，比技術論文晚約兩個月。",
+    "editions": [
+      {
+        "year": 2026,
+        "geo": [3.153, 101.713],
+        "city": "Kuala Lumpur",
+        "city_zh": "吉隆坡",
+        "country": "Malaysia",
+        "country_zh": "馬來西亞",
+        "host": "Kuala Lumpur Convention Centre",
+        "host_zh": "吉隆坡會議中心",
+        "url": "https://asia.siggraph.org/2026/",
+        "conference": { "start": "2026-12-01", "end": "2026-12-04" },
+        "milestones": [
+          { "type": "paper", "date": "2026-05-13", "label": "Technical papers", "label_zh": "技術論文" },
+          { "type": "short", "date": "2026-07-27", "label": "Technical communications", "label_zh": "技術短文" },
+          { "type": "short", "date": "2026-07-31", "label": "Posters", "label_zh": "海報" }
+        ]
+      },
+      {
+        "year": 2027,
+        "geo": [35.677, 139.764],
+        "city": "Tokyo",
+        "city_zh": "東京",
+        "country": "Japan",
+        "country_zh": "日本",
+        "host": "Tokyo International Forum",
+        "host_zh": "東京國際論壇",
+        "url": "https://asia.siggraph.org/2026/about-the-event/siggraph-asia-2027/",
+        "conference": { "start": "2027-11-30", "end": "2027-12-03" },
+        "milestones": [
+          { "type": "paper", "date": "2027-05-12", "est": true, "label": "Technical papers", "label_zh": "技術論文" },
+          { "type": "short", "date": "2027-07-26", "est": true, "label": "Technical communications", "label_zh": "技術短文" }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "caad-futures",
+    "name": "CAAD Futures",
+    "full": "International CAAD Futures Conference",
+    "full_zh": "CAAD Futures 國際研討會",
+    "tier": "recommended",
+    "field": "caad",
+    "labPapers": 1,
+    "site": "https://www.caadfutures.org/",
+    "indexing": "Springer CCIS (30% of papers)",
+    "indexing_zh": "Springer CCIS（約 30% 論文）",
+    "format": "Full paper only, Springer LNCS template, typically 12–15 pages. Double-blind, with a rebuttal stage.",
+    "format_zh": "只交全文，Springer LNCS 格式，通常 12–15 頁；雙盲審查，有答辯（rebuttal）階段。",
+    "note": "Held every two years. The 2027 full-paper deadline has passed, but online short papers are still open.",
+    "note_zh": "每兩年一次。2027 全文已截止，線上短論文仍可投。",
+    "editions": [
+      {
+        "year": 2027,
+        "geo": [51.046, -114.08],
+        "theme": "Design Agency",
+        "city": "Calgary",
+        "city_zh": "卡加利",
+        "country": "Canada",
+        "country_zh": "加拿大",
+        "host": "SAPL, University of Calgary",
+        "host_zh": "卡加利大學建築規劃與景觀學院",
+        "url": "https://2027.caadfutures.org/",
+        "workshops": { "start": "2027-06-29", "end": "2027-06-30" },
+        "conference": { "start": "2027-07-01", "end": "2027-07-03" },
+        "milestones": [
+          { "type": "paper", "date": "2026-10-16", "note": "Final extension (originally 15 Sep).", "note_zh": "最終延期（原為 9/15）。" },
+          { "type": "short", "date": "2026-11-30", "label": "Short papers (4–6 pp, online)", "label_zh": "短論文（4–6 頁，線上發表）" },
+          { "type": "proposal", "date": "2026-12-15", "label": "Workshop proposals", "label_zh": "工作坊提案" },
+          { "type": "result", "date": "2027-01-29", "approx": true, "note": "Official: late January.", "note_zh": "官方寫「1 月下旬」。" },
+          { "type": "camera", "date": "2027-03-15", "approx": true, "note": "Official: mid-March.", "note_zh": "官方寫「3 月中」。" }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "acadia",
+    "name": "ACADIA",
+    "full": "Association for Computer Aided Design in Architecture",
+    "full_zh": "北美電腦輔助建築設計協會研討會",
+    "tier": "recommended",
+    "field": "caad",
+    "labPapers": 0,
+    "site": "https://www.acadia.org/",
+    "indexing": "CumInCAD, Scopus, Web of Science, DOI",
+    "format": "Full papers of 4,000 words, double-blind. Also projects (600 words + 10 images) and field notes.",
+    "format_zh": "全文 4,000 字，雙盲審查；另有作品（600 字＋10 張圖）與 Field Notes 類別。",
+    "note": "The North American CAAD conference, indexed in Scopus. The 2027 host has not been announced.",
+    "note_zh": "北美同領域會議，收錄於 Scopus；2027 主辦單位尚未公布。",
+    "editions": [
+      {
+        "year": 2026,
+        "geo": [42.474, -83.249],
+        "theme": "Humanism Recoded",
+        "city": "Detroit",
+        "city_zh": "底特律",
+        "country": "USA",
+        "country_zh": "美國",
+        "host": "Lawrence Technological University",
+        "host_zh": "勞倫斯理工大學",
+        "url": "https://2026.acadia.org/",
+        "workshops": { "start": "2026-10-19", "end": "2026-10-21" },
+        "conference": { "start": "2026-10-22", "end": "2026-10-24" },
+        "milestones": [
+          { "type": "paper", "date": "2026-05-17", "note": "Final extension (originally 19 Apr).", "note_zh": "最終延期（原為 4/19）。" },
+          { "type": "short", "date": "2026-06-01", "label": "Projects & field notes", "label_zh": "作品與 Field Notes" },
+          { "type": "result", "date": "2026-07-15", "approx": true, "note": "Official: mid-July.", "note_zh": "官方寫「7 月中」。" },
+          { "type": "camera", "date": "2026-07-31", "approx": true, "label": "Revised papers", "label_zh": "修改稿" },
+          { "type": "earlybird", "date": "2026-09-27" }
+        ]
+      },
+      {
+        "year": 2027,
+        "est": true,
+        "city": "TBA",
+        "city_zh": "未公布",
+        "conference": { "start": "2027-10-21", "end": "2027-10-23" },
+        "milestones": [
+          { "type": "paper", "date": "2027-04-19", "est": true },
+          { "type": "result", "date": "2027-07-15", "est": true },
+          { "type": "camera", "date": "2027-07-31", "est": true, "label": "Revised papers", "label_zh": "修改稿" }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "sigradi",
+    "name": "SIGraDi",
+    "full": "Iberoamerican Society of Digital Graphics",
+    "full_zh": "伊比利美洲數位圖學學會研討會",
+    "tier": "recommended",
+    "field": "caad",
+    "labPapers": 1,
+    "site": "https://sigradi.org/",
+    "indexing": "ISBN, DOI per paper",
+    "indexing_zh": "ISBN，每篇論文有 DOI",
+    "format": "Three stages: abstract, full paper, camera-ready. Double-blind. English, Spanish or Portuguese.",
+    "format_zh": "三階段：摘要、全文、定稿；雙盲審查；英文、西文或葡文皆可。",
+    "note": "The Latin American CAAD conference; the lab presented at the joint eCAADe + SIGraDi 2019.",
+    "note_zh": "拉丁美洲同領域會議；研究室曾發表於 2019 年 eCAADe + SIGraDi 聯合會議。",
+    "editions": [
+      {
+        "year": 2026,
+        "geo": [-33.457, -70.663],
+        "theme": "Beyond AI_ded Design",
+        "city": "Santiago",
+        "city_zh": "聖地牙哥",
+        "country": "Chile",
+        "country_zh": "智利",
+        "host": "Universidad de Chile",
+        "host_zh": "智利大學",
+        "url": "https://sigradi.org/sigradi2026/",
+        "conference": { "start": "2026-11-18", "end": "2026-11-20" },
+        "milestones": [
+          { "type": "abstract", "date": "2026-04-17" },
+          { "type": "result", "date": "2026-05-15", "label": "Abstract results", "label_zh": "摘要結果" },
+          { "type": "paper", "date": "2026-07-15" },
+          { "type": "result", "date": "2026-08-22" },
+          { "type": "camera", "date": "2026-10-07" },
+          { "type": "earlybird", "date": "2026-10-14" }
+        ]
+      },
+      {
+        "year": 2027,
+        "est": true,
+        "city": "TBA",
+        "city_zh": "未公布",
+        "conference": { "start": "2027-11-17", "end": "2027-11-19" },
+        "milestones": [
+          { "type": "abstract", "date": "2027-04-16", "est": true },
+          { "type": "result", "date": "2027-05-14", "est": true, "label": "Abstract results", "label_zh": "摘要結果" },
+          { "type": "paper", "date": "2027-07-15", "est": true },
+          { "type": "result", "date": "2027-08-20", "est": true },
+          { "type": "camera", "date": "2027-10-06", "est": true }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ascaad",
+    "name": "ASCAAD",
+    "full": "Arab Society for Computer Aided Architectural Design",
+    "full_zh": "阿拉伯電腦輔助建築設計學會研討會",
+    "tier": "recommended",
+    "field": "caad",
+    "labPapers": 0,
+    "site": "https://www.ascaad.org/",
+    "indexing": "CumInCAD",
+    "format": "Two stages: abstract, then full paper, using the ASCAAD template.",
+    "format_zh": "兩階段：摘要、全文；使用 ASCAAD 範本。",
+    "note": "Smaller, with a short cycle (about five months from call to conference). The next edition has not been announced.",
+    "note_zh": "規模較小、時程短（從徵稿到開會約 5 個月）；下一屆尚未公布。",
+    "editions": [
+      {
+        "year": 2026,
+        "geo": [41.105, 29.025],
+        "theme": "Situated Intelligence",
+        "city": "Istanbul",
+        "city_zh": "伊斯坦堡",
+        "country": "Türkiye",
+        "country_zh": "土耳其",
+        "host": "Istanbul Technical University",
+        "host_zh": "伊斯坦堡技術大學",
+        "url": "https://www.ascaad.org/conference/2026/",
+        "conference": { "start": "2026-11-03", "end": "2026-11-05" },
+        "milestones": [
+          { "type": "abstract", "date": "2026-06-21" },
+          { "type": "paper", "date": "2026-08-16" }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "cdrf",
+    "name": "DigitalFUTURES CDRF",
+    "full": "International Conference on Computational Design and Robotic Fabrication",
+    "full_zh": "DigitalFUTURES 計算設計與機器人建造國際研討會",
+    "tier": "recommended",
+    "field": "fabrication",
+    "labPapers": 0,
+    "site": "https://www.digitalfutures.international/",
+    "indexing": "Springer proceedings",
+    "indexing_zh": "Springer 論文集",
+    "format": "Two stages: abstract, then full paper, then a revised full paper. Submitted through EasyChair.",
+    "format_zh": "兩階段：摘要、全文，再交修改後全文；EasyChair 投稿。",
+    "note": "Fits the robotics and fabrication thread. The abstract deadline is coming up.",
+    "note_zh": "適合構築與機器人主題；摘要即將截止。",
+    "editions": [
+      {
+        "year": 2027,
+        "geo": [51.525, -0.134],
+        "city": "London",
+        "city_zh": "倫敦",
+        "country": "UK",
+        "country_zh": "英國",
+        "host": "The Bartlett, UCL",
+        "host_zh": "倫敦大學學院巴特雷建築學院",
+        "url": "https://easychair.org/cfp/CDRF2027",
+        "conference": { "start": "2027-07-08", "end": "2027-07-09" },
+        "milestones": [
+          { "type": "abstract", "date": "2026-12-15" },
+          { "type": "result", "date": "2027-01-15", "label": "Abstract results", "label_zh": "摘要結果" },
+          { "type": "paper", "date": "2027-03-15", "approx": true, "note": "Official: mid-March.", "note_zh": "官方寫「3 月中」。" },
+          { "type": "result", "date": "2027-04-15" },
+          { "type": "camera", "date": "2027-05-15", "approx": true, "label": "Revised full paper", "label_zh": "修改後全文" }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "hcii",
+    "name": "HCII",
+    "full": "HCI International",
+    "full_zh": "HCI International 人機互動國際研討會",
+    "tier": "recommended",
+    "field": "hci",
+    "labPapers": 1,
+    "site": "https://2027.hci.international/",
+    "indexing": "Springer LNCS / CCIS",
+    "format": "800-word proposal first; after acceptance, submit the full paper. Posters need a 300-word proposal.",
+    "format_zh": "先交 800 字提案，接受後再交全文；海報為 300 字提案。",
+    "note": "Fits the sentient-environments and XR threads. Paper proposals have closed; posters are still open.",
+    "note_zh": "適合感知環境與 XR 主題；論文提案已截止，海報仍可投。",
+    "editions": [
+      {
+        "year": 2027,
+        "geo": [52.478, 13.459],
+        "city": "Berlin",
+        "city_zh": "柏林",
+        "country": "Germany",
+        "country_zh": "德國",
+        "host": "Estrel Congress Center (hybrid)",
+        "host_zh": "Estrel 會議中心（實體＋線上）",
+        "url": "https://2027.hci.international/",
+        "conference": { "start": "2027-07-25", "end": "2027-07-30" },
+        "milestones": [
+          { "type": "abstract", "date": "2026-10-09", "label": "Paper proposal (800 words)", "label_zh": "論文提案（800 字）" },
+          { "type": "result", "date": "2026-11-20" },
+          { "type": "short", "date": "2027-01-15", "label": "Poster proposal (300 words)", "label_zh": "海報提案（300 字）" },
+          { "type": "paper", "date": "2027-01-29", "label": "Final full paper", "label_zh": "完整論文" }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "uist",
+    "name": "UIST",
+    "full": "ACM Symposium on User Interface Software and Technology",
+    "full_zh": "ACM 使用者介面軟體與技術研討會",
+    "tier": "recommended",
+    "field": "hci",
+    "labPapers": 1,
+    "site": "https://uist.acm.org/",
+    "indexing": "ACM Digital Library",
+    "format": "Abstract registration one week before the full paper. Supplementary video due two days after the paper.",
+    "format_zh": "全文前一週先登錄摘要；補充影片在全文後兩天截止。",
+    "note": "A top HCI venue for interactive systems and hardware prototypes.",
+    "note_zh": "人機互動頂級會議，適合互動系統與硬體原型。",
+    "editions": [
+      {
+        "year": 2027,
+        "geo": [48.21, 16.37],
+        "city": "Vienna",
+        "city_zh": "維也納",
+        "country": "Austria",
+        "country_zh": "奧地利",
+        "host": "VIECON",
+        "host_zh": "VIECON",
+        "url": "https://uist.acm.org/",
+        "workshops": { "start": "2027-10-26", "end": "2027-10-26" },
+        "conference": { "start": "2027-10-27", "end": "2027-10-29" },
+        "milestones": [
+          { "type": "abstract", "date": "2027-03-31" },
+          { "type": "paper", "date": "2027-04-07" },
+          { "type": "short", "date": "2027-04-09", "label": "Supplementary materials", "label_zh": "補充資料" }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chi",
+    "name": "CHI",
+    "full": "ACM CHI Conference on Human Factors in Computing Systems",
+    "full_zh": "ACM 人機互動國際研討會",
+    "tier": "recommended",
+    "field": "hci",
+    "labPapers": 0,
+    "site": "https://chi2027.acm.org/",
+    "indexing": "ACM Digital Library",
+    "format": "Full paper only, with a revise-and-resubmit round.",
+    "format_zh": "只交全文，有「修改後再審」階段。",
+    "note": "The largest HCI conference. Papers are due in September for the following spring.",
+    "note_zh": "人機互動最大型會議；9 月截稿，隔年春天開會。",
+    "editions": [
+      {
+        "year": 2027,
+        "geo": [40.441, -79.996],
+        "city": "Pittsburgh",
+        "city_zh": "匹茲堡",
+        "country": "USA",
+        "country_zh": "美國",
+        "url": "https://chi2027.acm.org/",
+        "conference": { "start": "2027-05-10", "end": "2027-05-14", "unverified": true },
+        "milestones": [
+          { "type": "paper", "date": "2026-09-10" },
+          { "type": "result", "date": "2026-11-05", "label": "First-round reviews", "label_zh": "第一輪審查結果" }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "siggraph",
+    "name": "SIGGRAPH",
+    "full": "ACM SIGGRAPH Conference on Computer Graphics and Interactive Techniques",
+    "full_zh": "ACM SIGGRAPH 電腦圖學與互動技術研討會",
+    "tier": "recommended",
+    "field": "graphics",
+    "labPapers": 0,
+    "site": "https://www.siggraph.org/",
+    "indexing": "ACM Digital Library / ACM TOG",
+    "format": "Technical papers are due in late January. Art papers, posters and talks have their own later deadlines.",
+    "format_zh": "技術論文約 1 月下旬截止；藝術論文、海報、演講另有較晚截止日。",
+    "note": "The North American counterpart of SIGGRAPH Asia.",
+    "note_zh": "SIGGRAPH Asia 的北美主會。",
+    "editions": [
+      {
+        "year": 2027,
+        "geo": [33.8, -117.92],
+        "city": "Anaheim",
+        "city_zh": "安納罕",
+        "country": "USA",
+        "country_zh": "美國",
+        "host": "Anaheim Convention Center",
+        "host_zh": "安納罕會議中心",
+        "url": "https://www.siggraph.org/",
+        "conference": { "start": "2027-08-08", "end": "2027-08-12" },
+        "milestones": [
+          { "type": "paper", "date": "2027-01-21", "est": true, "label": "Technical papers", "label_zh": "技術論文" }
+        ]
+      }
+    ]
+  }
+]

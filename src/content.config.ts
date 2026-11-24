@@ -212,4 +212,59 @@ const pages = defineCollection({
   }),
 });
 
-export const collections = { publications, themes, theses, people, activities, projects, pages };
+/**
+ * Conference calendar (the Gantt page): src/data/conferences.json, edited by hand.
+ * One entry per conference series; each edition lists its milestones.
+ *   est        — projected from the previous cycle, not yet announced
+ *   approx     — the official page gives only "mid-March", "late January" …
+ *   unverified — taken from a third-party listing, not the official site
+ */
+const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'use YYYY-MM-DD');
+const span = z.object({ start: isoDate, end: isoDate, unverified: z.boolean().default(false) });
+const milestone = z.object({
+  type: z.enum(['abstract', 'paper', 'short', 'proposal', 'result', 'camera', 'earlybird']),
+  date: isoDate,
+  label: z.string().optional(),
+  label_zh: z.string().optional(),
+  note: z.string().optional(),
+  note_zh: z.string().optional(),
+  est: z.boolean().default(false),
+  approx: z.boolean().default(false),
+  unverified: z.boolean().default(false),
+});
+const conferences = defineCollection({
+  loader: file('./src/data/conferences.json'),
+  schema: z.object({
+    name: z.string(),
+    full: z.string(),
+    full_zh: z.string().optional(),
+    tier: z.enum(['core', 'recommended']),   // core = the lab submits regularly
+    field: z.enum(['caad', 'graphics', 'hci', 'fabrication']),
+    labPapers: z.number().int().default(0),  // lab papers at this venue (from publications.json)
+    site: link,
+    indexing: z.string().optional(),
+    indexing_zh: z.string().optional(),
+    format: z.string().optional(),
+    format_zh: z.string().optional(),
+    note: z.string().optional(),
+    note_zh: z.string().optional(),
+    editions: z.array(z.object({
+      year: z.number().int(),
+      geo: z.tuple([z.number().min(-90).max(90), z.number().min(-180).max(180)]).optional(),  // [lat, lon]; omit while the city is TBA
+      est: z.boolean().default(false),
+      theme: z.string().optional(),
+      city: z.string(),                       // city only; "TBA" while unannounced
+      city_zh: z.string().optional(),
+      country: z.string().optional(),
+      country_zh: z.string().optional(),
+      host: z.string().optional(),            // venue
+      host_zh: z.string().optional(),
+      url: link.optional(),
+      workshops: span.optional(),
+      conference: span,
+      milestones: z.array(milestone),
+    })),
+  }),
+});
+
+export const collections = { publications, themes, theses, people, activities, projects, pages, conferences };

@@ -1,0 +1,394 @@
+---
+/**
+ * Conference calendar. Three stacked parts, heights 1 : 1 : 5:
+ *   1. Gantt   — one row per conference; per edition only three marks joined by a line:
+ *                ○ abstract deadline, ● full paper deadline, ■ conference.
+ *   2. Globe   — an ASCII globe in a wide frame (src/scripts/ascii-globe.js). Hovering a
+ *                conference in the Gantt turns it to the host city; leaving does nothing.
+ *                Beside it, the key and the three dates of the conference on the globe.
+ *   3. Notes   — every other date and detail, as lists, one card per conference.
+ * Data: src/data/conferences.json (schema in content.config.ts).
+ *
+ * The time window is set at build time (three months back, fifteen ahead), so the chart
+ * rolls forward on every rebuild. The today line is placed in the browser.
+ */
+import { getCollection } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import PageHeader from '../../../components/PageHeader.astro';
+import { useTranslations, pick, langPaths, type Lang } from '../../../i18n/utils';
+import '../../../styles/conferences.css';
+
+export const getStaticPaths = langPaths;
+const lang = Astro.params.lang as Lang;
+const t = useTranslations(lang);
+const zh = lang === 'zh';
+const CHECKED = '2026-11-24';   // when the dates were last checked against the official sites
+const HOME: [number, number] = [24.787, 120.997];   // NYCU, Hsinchu
+
+// ------------------------------------------------------------------ dates
+const DAY = 86_400_000;
+const utc = (s: string) => { const [y, m, d] = s.split('-').map(Number); return Date.UTC(y, m - 1, d); };
+const iso = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+const D = (ms: number) => new Date(ms);
+const WD_ZH = ['日', '一', '二', '三', '四', '五', '六'];
+const fmtLong = (ms: number) => zh
+  ? `${D(ms).getUTCFullYear()}/${D(ms).getUTCMonth() + 1}/${D(ms).getUTCDate()}（${WD_ZH[D(ms).getUTCDay()]}）`
+  : new Intl.DateTimeFormat('en-GB', { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }).format(D(ms));
+const fmtShort = (ms: number) => zh
+  ? `${D(ms).getUTCMonth() + 1}/${D(ms).getUTCDate()}`
+  : new Intl.DateTimeFormat('en-GB', { timeZone: 'UTC', day: 'numeric', month: 'short' }).format(D(ms));
+const fmtSpan = (a: string, b: string) => {
+  const A = utc(a), B = utc(b);
+  if (A === B) return fmtShort(A);
+  const sameMonth = D(A).getUTCMonth() === D(B).getUTCMonth();
+  return `${fmtShort(A)}–${sameMonth && !zh ? D(B).getUTCDate() : fmtShort(B)}`;
+};
+const MON_EN = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+
+const now = new Date();
+const buildDay = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+const FROM = Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 3, 1);
+const TO = Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 15, 1) - DAY;   // 18 months
+const SPAN = TO + DAY - FROM;
+const pct = (ms: number) => Math.min(100, Math.max(0, ((ms - FROM) / SPAN) * 100));
+const inWindow = (ms: number) => ms >= FROM && ms <= TO;
+
+const months: { x: number; label: string; year?: number }[] = [];
+for (let m = new Date(FROM); m.getTime() <= TO; m = new Date(Date.UTC(m.getUTCFullYear(), m.getUTCMonth() + 1, 1))) {
+  const first = months.length === 0 || m.getUTCMonth() === 0;
+  months.push({ x: pct(m.getTime()), label: zh ? `${m.getUTCMonth() + 1}月` : MON_EN[m.getUTCMonth()], year: first ? m.getUTCFullYear() : undefined });
+}
+
+// ------------------------------------------------------------------ data
+const series = (await getCollection('conferences')).sort(
+  (a, b) => (a.data.tier === b.data.tier ? 0 : a.data.tier === 'core' ? -1 : 1) || b.data.labPapers - a.data.labPapers,
+);
+type S = (typeof series)[number];
+type Ed = S['data']['editions'][number];
+type Ms = Ed['milestones'][number];
+
+const flags = (m: { est?: boolean; approx?: boolean; unverified?: boolean }) =>
+  [m.est && t('conf.est'), m.approx && t('conf.approx'), m.unverified && t('conf.unverified')].filter(Boolean) as string[];
+const msLabel = (m: Ms) => pick(m, 'label', lang) ?? t(`conf.ms.${m.type}` as any);
+const keyOf = (s: S, ed: Ed) => `${s.id}-${ed.year}`;
+const country = (ed: Ed) => pick(ed, 'country', lang);
+const city = (ed: Ed) => (ed.geo ? pick(ed, 'city', lang) ?? ed.city : t('conf.tba'));
+const place = (ed: Ed) => (!ed.geo ? t('conf.tba') : zh ? `${country(ed) ?? ''}${city(ed)}` : [city(ed), country(ed)].filter(Boolean).join(', '));
+
+/** The three marks the chart shows for an edition. */
+function marks(ed: Ed) {
+  const first = (type: Ms['type']) => ed.milestones.filter((m) => m.type === type).sort((a, b) => utc(a.date) - utc(b.date))[0];
+  const abs = first('abstract'), paper = first('paper');
+  const out: { kind: 'abstract' | 'paper' | 'conf'; at: number; unsure: boolean; label: string; when: string; flags: string[] }[] = [];
+  if (abs) out.push({ kind: 'abstract', at: utc(abs.date), unsure: ed.est || abs.est || abs.approx || abs.unverified, label: msLabel(abs), when: fmtLong(utc(abs.date)), flags: flags({ ...abs, est: abs.est || ed.est }) });
+  if (paper) out.push({ kind: 'paper', at: utc(paper.date), unsure: ed.est || paper.est || paper.approx || paper.unverified, label: msLabel(paper), when: fmtLong(utc(paper.date)), flags: flags({ ...paper, est: paper.est || ed.est }) });
+  out.push({ kind: 'conf', at: utc(ed.conference.start), unsure: ed.est || ed.conference.unverified, label: t('conf.ms.conference'), when: fmtSpan(ed.conference.start, ed.conference.end), flags: flags({ est: ed.est, unverified: ed.conference.unverified }) });
+  return out.sort((a, b) => a.at - b.at);
+}
+
+const rows = series.map((s) => {
+  const eds = s.data.editions.map((ed) => {
+    const ms = marks(ed);
+    const a = ms[0].at, b = ms[ms.length - 1].at;
+    const visible = b >= FROM && a <= TO;
+    return { ed, key: keyOf(s, ed), ms, a, b, visible };
+  });
+  const shown = eds.filter((e) => e.visible);
+  const firstIn = Math.min(...shown.flatMap((e) => e.ms.filter((m) => inWindow(m.at)).map((m) => m.at)), ...shown.map((e) => Math.max(e.a, FROM)));
+  const next = s.data.editions.find((e) => utc(e.conference.end) >= buildDay) ?? s.data.editions[s.data.editions.length - 1];
+  return { s, eds: shown, stem: pct(firstIn), next };
+}).filter((r) => r.eds.length);
+
+// what the browser needs to describe an edition beside the globe
+const editions = Object.fromEntries(series.flatMap((s) => s.data.editions.map((ed) => [keyOf(s, ed), {
+  name: `${s.data.name} ${ed.year}`,
+  when: `${t('conf.ms.conference')} ${fmtSpan(ed.conference.start, ed.conference.end)}${ed.est ? ` · ${t('conf.est')}` : ''}`,
+  location: place(ed),
+  venue: (ed.geo && pick(ed, 'host', lang)) || '—',
+  geo: ed.geo ?? null,
+}])));
+const cities = series.flatMap((s) => s.data.editions.filter((e) => e.geo).map((e) => e.geo!));
+
+// notes: every milestone of an edition, as a list
+function schedule(ed: Ed) {
+  const items = ed.milestones.map((m) => ({ at: utc(m.date), text: msLabel(m), flags: flags({ ...m, est: m.est || ed.est }), note: pick(m, 'note', lang), major: m.type === 'abstract' || m.type === 'paper' }));
+  if (ed.workshops) items.push({ at: utc(ed.workshops.start), text: `${t('conf.ms.workshops')} ${fmtSpan(ed.workshops.start, ed.workshops.end)}`, flags: flags({ est: ed.est }), note: undefined, major: false });
+  items.push({ at: utc(ed.conference.start), text: `${t('conf.ms.conference')} ${fmtSpan(ed.conference.start, ed.conference.end)}`, flags: flags({ est: ed.est, unverified: ed.conference.unverified }), note: undefined, major: true });
+  return items.sort((a, b) => a.at - b.at);
+}
+
+const checked = zh ? CHECKED.replaceAll('-', '/') : new Intl.DateTimeFormat('en-GB', { timeZone: 'UTC', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(CHECKED));
+const landUrl = `${import.meta.env.BASE_URL}data/land.bin`;
+const countriesUrl = `${import.meta.env.BASE_URL}data/countries.bin`;
+const client = { editions, cities, home: HOME, landUrl, countriesUrl };
+const continents = ['asia', 'europe', 'africa', 'americas', 'oceania'] as const;
+const continentCh = { asia: '+', europe: 'x', africa: '=', americas: 'o', oceania: '*' };   // = CONTINENTS in ascii-globe.js
+---
+
+<Base lang={lang} title={t('conf.title')} description={t('conf.lede')}>
+  <PageHeader title={t('conf.title')} lede={t('conf.lede')} />
+
+  <div class="conf" data-conf data-from={iso(FROM)} data-to={iso(TO)}>
+
+    <!-- 1 · Gantt -------------------------------------------------------- -->
+    <section class="stage gantt" aria-label={t('conf.title')}>
+      <div class="g-scroll">
+        <div class="g-inner">
+          <div class="g-head" aria-hidden="true">
+            <span class="g-label"></span>
+            <span class="g-track">
+              {months.map((m) => <>
+                {m.year && <span class="g-year" style={`left:${m.x}%`}>{m.year}</span>}
+                <span class="g-month" style={`left:${m.x}%`}>{m.label}</span>
+              </>)}
+            </span>
+          </div>
+          <div class="g-body">
+            <div class="g-lines" aria-hidden="true">
+              {months.map((m) => <i class:list={['g-line', { year: m.year }]} style={`left:${m.x}%`}></i>)}
+              <i class="g-today" data-today hidden><span>{t('conf.today')}</span></i>
+            </div>
+            {rows.map(({ s, eds, stem, next }) => (
+              <a class="g-row" href={`#c-${s.id}`} data-ed={keyOf(s, next)}>
+                <span class="g-label">
+                  <span class="g-name">{s.data.name}</span>
+                </span>
+                <span class="g-track">
+                  <i class="g-stem" style={`--b:${stem}%`}></i>
+                  {eds.map(({ key, ms, a, b, ed }) => <>
+                    <i class:list={['g-seg', { unsure: ed.est }]} style={`--a:${pct(a)}%;--b:${pct(b)}%`} data-end={iso(b)}></i>
+                    {ms.filter((m) => inWindow(m.at)).map((m) => (
+                      <span
+                        class:list={['pt', m.kind, { unsure: m.unsure }]}
+                        style={`--x:${pct(m.at)}%`}
+                        data-ed={key}
+                        data-at={iso(m.at)}
+                        data-tip={`${s.data.name} ${ed.year} · ${m.label} · ${m.when}${m.flags.length ? ` · ${m.flags.join('、')}` : ''}`}
+                        aria-label={`${s.data.name} ${ed.year}, ${m.label}, ${m.when}`}
+                      ></span>
+                    ))}
+                  </>)}
+                </span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+      <!-- key, bottom right of the chart -->
+      <ul class="g-key">
+        <li><i class="pt abstract"></i>{t('conf.ms.abstract')}</li>
+        <li><i class="pt paper"></i>{t('conf.ms.paper')}</li>
+        <li><i class="pt conf"></i>{t('conf.ms.conference')}</li>
+        <li><i class="key-today"></i>{t('conf.key.today')}</li>
+        <li><i class="pt paper unsure"></i><i class="key-dash"></i>{t('conf.key.unsure')}</li>
+        <li class="checked">{t('conf.updated')} {checked}</li>
+      </ul>
+    </section>
+
+    <!-- 2 · Globe, with a callout drawn out of the selected city ----------- -->
+    <section class="stage map">
+      <div class="globe-frame" data-frame>
+        <canvas class="globe" data-globe aria-hidden="true"></canvas>
+        <svg class="callout-line" aria-hidden="true"><polyline data-callout-line points="" /></svg>
+        <div class="callout" data-callout hidden aria-live="polite">
+          <p class="c-head"><span class="c-name" data-c-name></span><span class="c-when" data-c-when></span></p>
+          <dl>
+            <dt>{t('conf.location')}</dt><dd data-c-location></dd>
+            <dt>{t('conf.venue')}</dt><dd data-c-venue></dd>
+          </dl>
+        </div>
+        <span class="globe-coord" data-coord></span>
+        <ul class="globe-key" aria-label={t('conf.key')}>
+          {continents.map((c) => <li><b>{continentCh[c]}</b>{t(`conf.cont.${c}` as any)}</li>)}
+          <li><b class="home">#</b>{t('conf.taiwan')}</li>
+          <li><b class="pick">■</b>{t('conf.picked')}</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 3 · Notes ------------------------------------------------------------ -->
+    <section class="notes" id="notes">
+      <h2 class="sec">{t('conf.details')}</h2>
+      <div class="cards">
+        {series.map((s) => (
+          <article class="card" id={`c-${s.id}`}>
+            <h3><a href={s.data.site} target="_blank" rel="noopener">{s.data.name} ↗</a></h3>
+            <p class="full">{pick(s.data, 'full', lang)}</p>
+
+            <h4>{t('conf.about')}</h4>
+            <ul class="facts">
+              {s.data.labPapers > 0 && <li>{t('conf.labPapers')} {s.data.labPapers}{zh ? ' 篇' : ''}</li>}
+              {pick(s.data, 'format', lang) && <li><b>{t('conf.format')}</b>{pick(s.data, 'format', lang)}</li>}
+              {pick(s.data, 'indexing', lang) && <li><b>{t('conf.indexing')}</b>{pick(s.data, 'indexing', lang)}</li>}
+              {pick(s.data, 'note', lang) && <li>{pick(s.data, 'note', lang)}</li>}
+            </ul>
+
+            {s.data.editions.map((ed) => (
+              <>
+                <h4>
+                  {ed.year} · {ed.geo ? place(ed) : t('conf.tba')}
+                  {ed.est && <span class="flag">{t('conf.est')}</span>}
+                </h4>
+                {(ed.theme || ed.host || ed.url) && (
+                  <p class="ed-meta">
+                    {ed.theme && <span class="theme">{ed.theme}</span>}
+                    {ed.host && <span>{pick(ed, 'host', lang)}</span>}
+                    {ed.url && <a href={ed.url} target="_blank" rel="noopener">{t('conf.website')} ↗</a>}
+                  </p>
+                )}
+                <ul class="sched">
+                  {schedule(ed).map((it) => (
+                    <li class:list={{ major: it.major }}>
+                      <span class="d">{fmtLong(it.at)}</span>
+                      <span class="w">
+                        {it.text}
+                        {it.flags.length > 0 && <span class="flag">{it.flags.join('、')}</span>}
+                        {it.note && <span class="n">{it.note}</span>}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ))}
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <div class="tip" role="tooltip" hidden data-tip-box></div>
+    <script type="application/json" id="conf-data" set:html={JSON.stringify(client)} />
+  </div>
+</Base>
+
+<script>
+  import { createGlobe } from '../../../scripts/ascii-globe.js';
+
+  const root = document.querySelector<HTMLElement>('[data-conf]')!;
+  const data = JSON.parse(document.getElementById('conf-data')!.textContent!);
+  const gantt = root.querySelector<HTMLElement>('.gantt')!;
+  const $ = (s: string) => root.querySelector<HTMLElement>(s)!;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const DAY = 86400000;
+  const utc = (s: string) => { const [y, m, d] = s.split('-').map(Number); return Date.UTC(y, m - 1, d); };
+  const n = new Date();
+  const today = Date.UTC(n.getFullYear(), n.getMonth(), n.getDate());
+
+  // today line, and past marks dimmed
+  const from = utc(root.dataset.from!), to = utc(root.dataset.to!) + DAY;
+  const line = $('[data-today]');
+  if (today >= from && today < to) { line.style.left = ((today - from) / (to - from)) * 100 + '%'; line.hidden = false; }
+  for (const el of root.querySelectorAll<HTMLElement>('[data-at]')) if (utc(el.dataset.at!) < today) el.classList.add('past');
+  for (const el of root.querySelectorAll<HTMLElement>('[data-end]')) if (utc(el.dataset.end!) < today) el.classList.add('past');
+
+  // ------------------------------------------------------------ callout
+  // A leader drawn out of the selected city (diagonal, then level), ending in a box.
+  // Hidden while the globe turns; drawn when it settles; follows on resize.
+  const frame = $('[data-frame]');
+  const canvas = $('[data-globe]') as HTMLCanvasElement;
+  const box = $('[data-callout]');
+  const leader = root.querySelector<SVGPolylineElement>('[data-callout-line]')!;
+  const coordEl = $('[data-coord]');
+  const coord = (ll: [number, number] | null) => ll
+    ? `${Math.abs(ll[0]).toFixed(2)}°${ll[0] >= 0 ? 'N' : 'S'}  ${Math.abs(ll[1]).toFixed(2)}°${ll[1] >= 0 ? 'E' : 'W'}`
+    : '—';
+  coordEl.textContent = coord(data.home);
+
+  let selected: any = null, drawn = false;
+  function place(p: { x: number; y: number } | null, moving: boolean) {
+    if (!selected) return;
+    if (moving) { box.hidden = true; leader.setAttribute('points', ''); drawn = false; frame.classList.remove('is-drawn'); return; }
+    box.hidden = false;
+    const fw = frame.clientWidth, fh = frame.clientHeight, bw = box.offsetWidth, bh = box.offsetHeight, pad = 14;
+    if (!p && selected.geo) {                   // turned to the far side by hand: nothing to point at
+      box.hidden = true; leader.setAttribute('points', ''); drawn = false; frame.classList.remove('is-drawn');
+      return;
+    }
+    if (!p) {                                   // host city not announced: the box alone, top left
+      box.style.left = pad + 'px'; box.style.top = pad + 'px';
+      leader.setAttribute('points', '');
+    } else {
+      const ring = (canvas.clientWidth / 132) * 2.2;
+      const dx = p.x + 48 + 24 + bw < fw - pad ? 1 : -1;      // right if there is room, else left
+      const dy = p.y - 48 - bh / 2 > pad ? -1 : 1;             // up if there is room, else down
+      const sx = p.x + (dx * ring) / Math.SQRT2, sy = p.y + (dy * ring) / Math.SQRT2;
+      const ex = p.x + dx * 48, ey = p.y + dy * 48;            // elbow
+      const hx = ex + dx * 24;                                 // end of the level run
+      leader.setAttribute('points', `${sx},${sy} ${ex},${ey} ${hx},${ey}`);
+      const len = Math.hypot(ex - sx, ey - sy) + Math.abs(hx - ex);
+      leader.style.setProperty('--len', String(Math.ceil(len)));
+      box.style.left = Math.max(pad, Math.min(fw - bw - pad, dx > 0 ? hx : hx - bw)) + 'px';
+      box.style.top = Math.max(pad, Math.min(fh - bh - pad, ey - bh / 2)) + 'px';
+    }
+    if (!drawn) {                              // replay the draw-in only when newly shown
+      drawn = true;
+      frame.classList.remove('is-drawn');
+      void frame.offsetWidth;
+      frame.classList.add('is-drawn');
+    }
+  }
+
+  const globe = createGlobe(canvas, { landUrl: data.landUrl, countriesUrl: data.countriesUrl, center: data.home, home: data.home, cities: data.cities, onFrame: place });
+
+  // the first time the globe comes into view, it turns once into Taiwan
+  globe.then((g) => {
+    const io = new IntersectionObserver((entries) => {
+      if (!entries.some((e) => e.isIntersecting)) return;
+      io.disconnect();
+      if (!current) g.intro();
+    }, { threshold: 0.35 });
+    io.observe(frame);
+  });
+
+  // ------------------------------------------------------------ selection
+  let current = '';
+  function activate(key: string, row: HTMLElement | null) {
+    if (!key || key === current || !data.editions[key]) return;
+    current = key;
+    selected = data.editions[key];
+    for (const r of gantt.querySelectorAll('.g-row.on')) r.classList.remove('on');
+    row?.classList.add('on');
+    gantt.classList.add('has-on');
+    $('[data-c-name]').textContent = selected.name;
+    $('[data-c-when]').textContent = selected.when;
+    $('[data-c-location]').textContent = selected.location;
+    $('[data-c-venue]').textContent = selected.venue;
+    coordEl.textContent = coord(selected.geo);
+    drawn = false;
+    globe.then((g) => {
+      g.select(selected.geo);                  // turn, grow the arc from Taiwan; the callout follows when it arrives
+      if (!selected.geo) place(null, false);
+    });
+  }
+
+  // hover / focus picks a conference; leaving the chart changes nothing
+  const pickFrom = (target: EventTarget | null) => {
+    const el = (target as HTMLElement | null)?.closest<HTMLElement>('[data-ed]');
+    if (el) activate(el.dataset.ed!, el.closest('.g-row'));
+  };
+  gantt.addEventListener('pointerover', (e) => pickFrom(e.target));
+  gantt.addEventListener('focusin', (e) => pickFrom(e.target));
+
+  // click: scroll to the notes
+  root.addEventListener('click', (e) => {
+    const a = (e.target as HTMLElement).closest<HTMLAnchorElement>('a[href^="#c-"]');
+    if (!a) return;
+    const card = document.querySelector(a.getAttribute('href')!);
+    if (!card) return;
+    e.preventDefault();
+    card.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    history.replaceState(null, '', a.getAttribute('href'));
+  });
+
+  // small tooltip on each mark
+  const tip = $('[data-tip-box]');
+  const show = (el: HTMLElement) => {
+    tip.textContent = el.dataset.tip!; tip.hidden = false;
+    const r = el.getBoundingClientRect(), w = tip.offsetWidth;
+    tip.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.left + r.width / 2 - w / 2)) + 'px';
+    tip.style.top = (r.top - tip.offsetHeight - 10 < 8 ? r.bottom + 10 : r.top - tip.offsetHeight - 10) + 'px';
+  };
+  gantt.addEventListener('pointerover', (e) => { const el = (e.target as HTMLElement).closest<HTMLElement>('[data-tip]'); el ? show(el) : (tip.hidden = true); });
+  gantt.addEventListener('pointerleave', () => (tip.hidden = true));
+  gantt.addEventListener('focusout', () => (tip.hidden = true));
+  addEventListener('scroll', () => (tip.hidden = true), { passive: true });
+</script>
